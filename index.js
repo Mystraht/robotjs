@@ -20,12 +20,23 @@ function bitmap(width, height, byteWidth, bitsPerPixel, bytesPerPixel, image)
 
 }
 
-module.exports.screen.capture = function(x, y, width, height)
+module.exports.screen.capture = function(x, y, width, height, buffer)
 {
+    if (typeof buffer === 'undefined')
+    {
+        buffer = null;
+    }
     //If coords have been passed, use them.
     if (typeof x !== "undefined" && typeof y !== "undefined" && typeof width !== "undefined" && typeof height !== "undefined")
     {
-        b = robotjs.captureScreen(x, y, width, height);
+        if (buffer == null)
+        {
+            b = robotjs.captureScreen(x, y, width, height);
+        }
+        else
+        {
+            b = robotjs.captureScreenRe(x, y, width, height, buffer);
+        }
     }
     else 
     {

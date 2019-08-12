@@ -738,6 +738,54 @@ NAN_METHOD(captureScreen)
 	info.GetReturnValue().Set(obj);
 }
 
+
+NAN_METHOD(captureScreenRe)
+{
+	size_t x;
+	size_t y;
+	size_t w;
+	size_t h;
+	uint8_t* rawBuffer = nullptr;
+
+	//If user has provided screen coords, use them!
+	if (info.Length() == 5)
+	{
+		//TODO: Make sure requested coords are within the screen bounds, or we get a seg fault.
+		// 		An error message is much nicer!
+
+		x = info[0]->Int32Value(Nan::GetCurrentContext()).FromJust();
+		y = info[1]->Int32Value(Nan::GetCurrentContext()).FromJust();
+		w = info[2]->Int32Value(Nan::GetCurrentContext()).FromJust();
+		h = info[3]->Int32Value(Nan::GetCurrentContext()).FromJust();
+	} else {
+		x = 0;
+		y = 0;
+		
+		MMSize displaySize = getMainDisplaySize();
+		w = displaySize.width;
+		h = displaySize.height;
+	}
+
+	MMBitmapRef bitmap = copyMMBitmapFromDisplayInRect(MMRectMake(x, y, w, h));
+
+	uint32_t bufferSize = bitmap->bytewidth * bitmap->height;
+
+	Local<Object> buffer = info[4]->ToObject(Nan::GetCurrentContext()).ToLocalChecked();
+	rawBuffer = (uint8_t*) node::Buffer::Data(info[4]->ToObject(Nan::GetCurrentContext()).ToLocalChecked());
+	memcpy(rawBuffer, bitmap->imageBuffer, bufferSize);
+	destroyMMBitmapBuffer((char*)bitmap->imageBuffer, NULL);
+
+	Local<Object> obj = Nan::New<Object>();
+	Nan::Set(obj, Nan::New("width").ToLocalChecked(), Nan::New<Number>(bitmap->width));
+	Nan::Set(obj, Nan::New("height").ToLocalChecked(), Nan::New<Number>(bitmap->height));
+	Nan::Set(obj, Nan::New("byteWidth").ToLocalChecked(), Nan::New<Number>(bitmap->bytewidth));
+	Nan::Set(obj, Nan::New("bitsPerPixel").ToLocalChecked(), Nan::New<Number>(bitmap->bitsPerPixel));
+	Nan::Set(obj, Nan::New("bytesPerPixel").ToLocalChecked(), Nan::New<Number>(bitmap->bytesPerPixel));
+	Nan::Set(obj, Nan::New("image").ToLocalChecked(), buffer);
+
+	info.GetReturnValue().Set(obj);
+}
+
 /*
  ____  _ _
 | __ )(_) |_ _ __ ___   __ _ _ __
