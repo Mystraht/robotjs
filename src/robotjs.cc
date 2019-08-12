@@ -910,6 +910,9 @@ NAN_MODULE_INIT(InitAll)
 	Nan::Set(target, Nan::New("captureScreen").ToLocalChecked(),
 		Nan::GetFunction(Nan::New<FunctionTemplate>(captureScreen)).ToLocalChecked());
 
+	Nan::Set(target, Nan::New("captureScreenRe").ToLocalChecked(),
+		Nan::GetFunction(Nan::New<FunctionTemplate>(captureScreenRe)).ToLocalChecked());
+
 	Nan::Set(target, Nan::New("getColor").ToLocalChecked(),
 		Nan::GetFunction(Nan::New<FunctionTemplate>(getColor)).ToLocalChecked());
 
